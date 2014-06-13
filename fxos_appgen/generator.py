@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this file,
+# You can obtain one at http://mozilla.org/MPL/2.0/.
+
 from marionette import Marionette
 import mozdevice
 
@@ -296,19 +300,18 @@ def uninstall_app(app_name, adb_path=None, script_timeout=5000, marionette=None)
         m.delete_session()
 
 
-def install_app(app_name, app_path, adb_path=None, script_timeout=5000, marionette=None):
-    dm = None
-    if adb_path:
-        dm = mozdevice.DeviceManagerADB(adbPath=adb_path)
-    else:
-        dm = mozdevice.DeviceManagerADB()
+def is_installed(app_name, adb_path="adb"):
+    """Check if given `app_name` is installed on the attached device."""
+    dm = mozdevice.DeviceManagerADB(adbPath=adb_path)
+    installed_app_name = app_name.lower().replace(" ", "-")
+    return dm.dirExists("/data/local/webaps/%s" % installed_app_name)
 
-    #TODO: replace with app name
-    installed_app_name = app_name.lower()
-    installed_app_name = installed_app_name.replace(" ", "-")
-    if dm.dirExists("/data/local/webapps/%s" % installed_app_name):
+
+def install_app(app_name, app_path, adb_path="adb", script_timeout=5000, marionette=None):
+    if is_installed(app_name, adb_path=adb_path):
         raise Exception("%s is already installed" % app_name)
         sys.exit(1)
+
     app_zip = os.path.basename(app_path)
     dm.pushFile("%s" % app_path, "/data/local/%s" % app_zip)
     # forward the marionette port
@@ -320,11 +323,11 @@ def install_app(app_name, app_path, adb_path=None, script_timeout=5000, marionet
     install_js = pkg_resources.resource_filename(__name__,
                                                  os.path.sep.join([
                                                    'app_install.js']))
-    f = open(install_js, "r")
-    script = f.read()
-    f.close()
+    with open(install_js, "r") as fp:
+        script = f.read()
     script = script.replace("YOURAPPID", installed_app_name)
     script = script.replace("YOURAPPZIP", app_zip)
+
     if not marionette:
         m = Marionette()
         m.start_session()
