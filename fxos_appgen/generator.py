@@ -48,7 +48,13 @@ def cli():
                              " given to the app, ignoring any permission in" \
                              " the details file")
     (options, args) = parser.parse_args()
-    if (options.all_perm and len(args) not in [1,2]) or \
+    if options.uninstall:
+        if len(args) is not 1:
+            print "Please pass in the name of the application to uninstall"
+            sys.exit(1)
+        uninstall_app(args[0], options.adb_path)
+        return
+    elif (options.all_perm and len(args) not in [1,2]) or \
         (not options.all_perm and len(args) != 2):
         print "Please pass in the app_name and details_file"
         print "or just app_name if --all-permissions option is used"
