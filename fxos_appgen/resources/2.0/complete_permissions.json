@@ -28,16 +28,16 @@
       "access": "read"
     },
     "device-storage:music": {
-      "access": "readwritecreate"
+      "access": "readwrite"
     },
     "device-storage:pictures": {
-      "access": "readwritecreate"
+      "access": "readwrite"
     },
     "device-storage:sdcard": {
-      "access": "readwritecreate"
+      "access": "readwrite"
     },
     "device-storage:videos": {
-      "access": "readwritecreate"
+      "access": "readwrite"
     },
     "downloads": {},
     "embed-apps": {},
