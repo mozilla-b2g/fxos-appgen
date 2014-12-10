@@ -264,9 +264,7 @@ def uninstall_app(app_name, adb_path="adb", script_timeout=5000, marionette=None
     dm = mozdevice.DeviceManagerADB(adbPath=adb_path)
     installed_app_name = app_name.lower()
     installed_app_name = installed_app_name.replace(" ", "-")
-    if dm.forward("tcp:2828", "tcp:2828") != 0:
-        raise Exception("Can't use localhost:2828 for port forwarding." \
-                    "Is something else using port 2828?")
+    dm.forward("tcp:2828", "tcp:2828")
 
     if not marionette:
         m = Marionette()
@@ -331,9 +329,7 @@ def install_app(app_name, app_path, adb_path="adb", script_timeout=5000, marione
     dm = mozdevice.DeviceManagerADB(adbPath=adb_path)
     dm.pushFile("%s" % app_path, "/data/local/%s" % app_zip)
     # forward the marionette port
-    if dm.forward("tcp:2828", "tcp:2828") != 0:
-        raise Exception("Can't use localhost:2828 for port forwarding." \
-                        "Is something else using port 2828?")
+    dm.forward("tcp:2828", "tcp:2828")
 
     # install the app
     install_js = pkg_resources.resource_filename(__name__,
@@ -367,9 +363,7 @@ def launch_app(app_name, adb_path="adb", script_timeout=5000, marionette=None):
     dm = mozdevice.DeviceManagerADB(adbPath=adb_path)
     installed_app_name = app_name.lower()
     installed_app_name = installed_app_name.replace(" ", "-")
-    if dm.forward("tcp:2828", "tcp:2828") != 0:
-        raise Exception("Can't use localhost:2828 for port forwarding." \
-                    "Is something else using port 2828?")
+    dm.forward("tcp:2828", "tcp:2828")
 
     if not marionette:
         m = Marionette()
