@@ -1,0 +1,11 @@
+{
+  "name": "",
+  "type": "",
+  "description": "Generated app",
+  "launch_path": "/index.html",
+  "developer": {
+    "name": "The A-team",
+    "url": "https://wiki.mozilla.org/Auto-tools"
+  },
+  "messages": []
+}
