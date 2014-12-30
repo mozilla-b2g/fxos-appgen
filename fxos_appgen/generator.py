@@ -2,7 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from marionette import Marionette
+from marionette import Marionette, StaleElementException
+from marionette.wait import Wait
+from marionette.expected import element_displayed
 import mozdevice
 
 import json
@@ -261,17 +263,48 @@ def uninstall_app(app_name, adb_path="adb", script_timeout=5000, marionette=None
 
     NOTE: if a marionette session is passed, this function switches to the top-most frame.
     """
+
+    def check_uninstall(marionette):
+        uninstall = marionette.execute_script("return window.wrappedJSObject.uninstall;")
+        return uninstall != 'none'
+
+    def check_click_uninstall(marionette):
+        button = marionette.find_element('css selector', 'gaia-confirm .confirm')
+        try:
+            button.click()
+            not_displayed = not button.is_displayed()
+        except StaleElementException:
+            not_displayed = True
+        return not_displayed
+
     dm = mozdevice.DeviceManagerADB(adbPath=adb_path)
     installed_app_name = app_name.lower()
     installed_app_name = installed_app_name.replace(" ", "-")
     dm.forward("tcp:2828", "tcp:2828")
 
+    print 'requesting uninstall of app', app_name
     if not marionette:
         m = Marionette()
         m.start_session()
     else: 
         m = marionette
         m.switch_to_frame()
+
+    m.set_context("chrome")
+    m.execute_script("""
+    Components.utils.import("resource://gre/modules/Services.jsm");
+    window.wrappedJSObject.uninstall = 'none';
+    Services.obs.addObserver(function observer(subject, topic) {
+        Services.obs.removeObserver(observer, topic);
+        window.wrappedJSObject.uninstall = 'ask';
+        }, "webapps-ask-uninstall", false);
+    Services.obs.addObserver(function observer(subject, topic) {
+        Services.obs.removeObserver(observer, topic);
+        window.wrappedJSObject.uninstall = 'uninstall';
+        }, "webapps-uninstall", false);
+        """)
+    m.set_context("content")
+
     uninstall_app = """
     var uninstallWithName = function(name) {
         let apps = window.wrappedJSObject.applications || window.wrappedJSObject.Applications;
@@ -302,7 +335,18 @@ def uninstall_app(app_name, adb_path="adb", script_timeout=5000, marionette=None
     return uninstallWithName("%s");
     """
     m.set_script_timeout(script_timeout)
-    m.execute_script(uninstall_app % app_name.lower())
+    result = m.execute_script(uninstall_app % app_name.lower())
+
+    if result:
+        m.set_context("chrome")
+        Wait(m, 10).until(check_uninstall)
+        uninstall = m.execute_script("return window.wrappedJSObject.uninstall;")
+        m.set_context("content")
+        if uninstall == 'ask':
+            m.switch_to_frame()
+            Wait(m, 20).until(element_displayed(m.find_element('css selector', 'gaia-confirm .confirm')))
+            Wait(m, 20).until(check_click_uninstall)
+
     if not marionette:
         m.delete_session()
 
