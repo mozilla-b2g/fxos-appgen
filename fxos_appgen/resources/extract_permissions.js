@@ -27,13 +27,22 @@ function extract_from(name)
 
     json = {}
     json.permissions = {}
+    // see http://dxr.mozilla.org/mozilla-central/source/modules/libpref/init/all.js#796
+    forbidden_perms = 'engineering-mode,embed-apps,embed-widgets';
     for (name in names) {
       permission = names[name];
       if ('access' in PermissionsTable[permission]) {
         access = PermissionsTable[permission].access;
-        json.permissions[permission] = {'access': access.join('')}
+        if (access.indexOf('write') != -1 && access.indexOf('create') != -1) {
+          access.splice(access.indexOf('create'), 1);
+        }
+        if (forbidden_perms.indexOf(permission) == -1) {
+          json.permissions[permission] = {'access': access.join('')}
+        }
       } else {
-        json.permissions[permission] = {}
+        if (forbidden_perms.indexOf(permission) == -1) {
+          json.permissions[permission] = {}
+        }
       }
     }
 

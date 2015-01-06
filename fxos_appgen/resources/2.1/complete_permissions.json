@@ -17,7 +17,7 @@
     "camera": {},
     "cellbroadcast": {},
     "contacts": {
-      "access": "readwritecreate"
+      "access": "readwrite"
     },
     "deprecated-hwvideo": {},
     "desktop-notification": {},
@@ -28,16 +28,16 @@
       "access": "read"
     },
     "device-storage:music": {
-      "access": "readwritecreate"
+      "access": "readwrite"
     },
     "device-storage:pictures": {
-      "access": "readwritecreate"
+      "access": "readwrite"
     },
     "device-storage:sdcard": {
-      "access": "readwritecreate"
+      "access": "readwrite"
     },
     "device-storage:videos": {
-      "access": "readwritecreate"
+      "access": "readwrite"
     },
     "downloads": {},
     "feature-detection": {},
@@ -82,7 +82,7 @@
     "tcp-socket": {},
     "telephony": {},
     "test-permission": {
-      "access": "readwritecreate"
+      "access": "readwrite"
     },
     "themeable": {},
     "time": {},
