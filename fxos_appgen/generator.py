@@ -22,7 +22,7 @@ def cli():
                                 "is the name of the app you want to generate " \
                                 "and permission_file is the path to the " \
                                 "details file.")
-    # TODO: take in device serial and marionette port, though likely won't be useful
+    # TODO: take in marionette port, though likely won't be useful
     parser.add_option("--adb-path", dest="adb_path", default="adb",
                         help="path to adb executable. If not passed, we assume"\
                         " that 'adb' is on the path")
@@ -49,12 +49,14 @@ def cli():
                         help="If this is passed, all permissions will be" \
                              " given to the app, ignoring any permission in" \
                              " the details file")
+    parser.add_option("--device-serial", dest="device_serial", default=None,
+                        help="Serial number of the device")
     (options, args) = parser.parse_args()
     if options.uninstall:
         if len(args) is not 1:
             print "Please pass in the name of the application to uninstall"
             sys.exit(1)
-        uninstall_app(args[0], options.adb_path)
+        uninstall_app(args[0], options.adb_path, device_serial=options.device_serial)
         return
     elif (options.all_perm and len(args) not in [1,2]) or \
         (not options.all_perm and len(args) != 2):
@@ -80,13 +82,14 @@ def cli():
                  version=options.version,
                  adb_path=options.adb_path,
                  app_path=options.app_path,
-                 all_perm=options.all_perm)
+                 all_perm=options.all_perm,
+                 device_serial=options.device_serial)
     print "Done."
 
 
 def generate_app(app_name, details_file=None, uninstall=False, install=False,
                  launch=False, app_type="certified", version="1.3", adb_path="adb",
-                 app_path=None, all_perm=False, marionette=None):
+                 app_path=None, all_perm=False, marionette=None, device_serial=None):
     """
     Generates the app and optionally installs it.
 
@@ -110,7 +113,11 @@ def generate_app(app_name, details_file=None, uninstall=False, install=False,
                      stored at the given location. By default, we will put
                      it in the current working dirctory as 'app.zip'
     :param all_perm: Optional, if passed, gives the app all permissions.
-                     By default this is false. 
+                     By default this is false.
+    :param device_serial: Optional, if passed, use the device with the
+                          specified serial number. This is required if more
+                          than one device is connected, otherwise, the only
+                          connected device is used.
     """
     details = create_details(version, details_file, all_perm)
     manifest = create_manifest(app_name, details, app_type,
@@ -122,13 +129,13 @@ def generate_app(app_name, details_file=None, uninstall=False, install=False,
 
     if uninstall:
         print "Uninstalling app"
-        uninstall_app(app_name, adb_path, marionette=marionette)
+        uninstall_app(app_name, adb_path, marionette=marionette, device_serial=device_serial)
     if install:
         print "Generating app"
-        install_app(app_name, app_path, adb_path, marionette=marionette)
+        install_app(app_name, app_path, adb_path, marionette=marionette, device_serial=device_serial)
     if install and launch:
         print "Launching app"
-        launch_app(app_name, adb_path, marionette=marionette)
+        launch_app(app_name, adb_path, marionette=marionette, device_serial=device_serial)
 
 
 def create_details(version, details_file=None, all_perms=None):
@@ -178,7 +185,7 @@ def create_manifest(app_name, details, app_type, version):
     manifest["name"] = app_name
     app_type = app_type.lower()
     if app_type not in APP_TYPES:
-        raise Exception("Need to pass in one of the following app types: %s" % 
+        raise Exception("Need to pass in one of the following app types: %s" %
                   APP_TYPES)
         sys.exit(1)
     manifest["type"] = app_type
@@ -216,7 +223,7 @@ def create_manifest(app_name, details, app_type, version):
                 if type(related_messages) is dict:
                     level = manifest["permissions"][permission]["access"]
                     for key in related_messages:
-                        # use "in" to allow us to use "read" key on both 
+                        # use "in" to allow us to use "read" key on both
                         # "readwrite", "readonly" and "read".
                         if key in level:
                             messages = related_messages[key]
@@ -224,7 +231,7 @@ def create_manifest(app_name, details, app_type, version):
                             break
                 else:
                     add_messages(related_messages, manifest)
-                
+
     if "datastores-access" in details:
         manifest["datastores-access"] = details["datastores-access"]
     if "datastores-owned" in details:
@@ -237,7 +244,7 @@ def package_app(manifest, path):
     # create the manifest.webapp file
     manifest_path = os.path.sep.join([os.getcwd(), "manifest.webapp"])
     manifest_file = open(manifest_path, "w")
-    manifest_file.write(json.dumps(manifest, 
+    manifest_file.write(json.dumps(manifest,
                         indent=4, separators=(",", ": ")))
     manifest_file.close()
 
@@ -257,7 +264,7 @@ def package_app(manifest, path):
     return app_path
 
 
-def uninstall_app(app_name, adb_path="adb", script_timeout=5000, marionette=None):
+def uninstall_app(app_name, adb_path="adb", script_timeout=5000, marionette=None, device_serial=None):
     """
     Uninstalls the given app.
 
@@ -277,7 +284,7 @@ def uninstall_app(app_name, adb_path="adb", script_timeout=5000, marionette=None
             not_displayed = True
         return not_displayed
 
-    dm = mozdevice.DeviceManagerADB(adbPath=adb_path)
+    dm = mozdevice.DeviceManagerADB(adbPath=adb_path, deviceSerial=device_serial)
     installed_app_name = app_name.lower()
     installed_app_name = installed_app_name.replace(" ", "-")
     dm.forward("tcp:2828", "tcp:2828")
@@ -286,7 +293,7 @@ def uninstall_app(app_name, adb_path="adb", script_timeout=5000, marionette=None
     if not marionette:
         m = Marionette()
         m.start_session()
-    else: 
+    else:
         m = marionette
         m.switch_to_frame()
 
@@ -351,26 +358,26 @@ def uninstall_app(app_name, adb_path="adb", script_timeout=5000, marionette=None
         m.delete_session()
 
 
-def is_installed(app_name, adb_path="adb"):
+def is_installed(app_name, adb_path="adb", device_serial=None):
     """Check if given `app_name` is installed on the attached device."""
-    dm = mozdevice.DeviceManagerADB(adbPath=adb_path)
+    dm = mozdevice.DeviceManagerADB(adbPath=adb_path, deviceSerial=device_serial)
     installed_app_name = app_name.lower().replace(" ", "-")
     return dm.dirExists("/data/local/webapps/%s" % installed_app_name)
 
 
-def install_app(app_name, app_path, adb_path="adb", script_timeout=5000, marionette=None):
+def install_app(app_name, app_path, adb_path="adb", script_timeout=5000, marionette=None, device_serial=None):
     """
     This installs the given application.
 
     NOTE: if a marionette session is passed, this function switches to
     'content' context and will be at the top-most frame.
     """
-    if is_installed(app_name, adb_path=adb_path):
+    if is_installed(app_name, adb_path=adb_path, device_serial=device_serial):
         raise Exception("%s is already installed" % app_name)
         sys.exit(1)
 
     app_zip = os.path.basename(app_path)
-    dm = mozdevice.DeviceManagerADB(adbPath=adb_path)
+    dm = mozdevice.DeviceManagerADB(adbPath=adb_path, deviceSerial=device_serial)
     dm.pushFile("%s" % app_path, "/data/local/%s" % app_zip)
     # forward the marionette port
     dm.forward("tcp:2828", "tcp:2828")
@@ -388,7 +395,7 @@ def install_app(app_name, app_path, adb_path="adb", script_timeout=5000, marione
     if not marionette:
         m = Marionette()
         m.start_session()
-    else: 
+    else:
         m = marionette
         m.switch_to_frame()
     m.set_context("chrome")
@@ -399,12 +406,12 @@ def install_app(app_name, app_path, adb_path="adb", script_timeout=5000, marione
     else:
         m.set_context("content")
 
-def launch_app(app_name, adb_path="adb", script_timeout=5000, marionette=None):
+def launch_app(app_name, adb_path="adb", script_timeout=5000, marionette=None, device_serial=None):
     """
     Launches the given app
     NOTE: if a marionette session is passed, this function switches to the top-most frame.
     """
-    dm = mozdevice.DeviceManagerADB(adbPath=adb_path)
+    dm = mozdevice.DeviceManagerADB(adbPath=adb_path,deviceSerial=device_serial)
     installed_app_name = app_name.lower()
     installed_app_name = installed_app_name.replace(" ", "-")
     dm.forward("tcp:2828", "tcp:2828")
@@ -412,7 +419,7 @@ def launch_app(app_name, adb_path="adb", script_timeout=5000, marionette=None):
     if not marionette:
         m = Marionette()
         m.start_session()
-    else: 
+    else:
         m = marionette
         m.switch_to_frame()
     launch_app = """
@@ -428,7 +435,7 @@ def launch_app(app_name, adb_path="adb", script_timeout=5000, marionette=None):
               let currentEntryPoint = entryPoints[ep];
               let appName = currentEntryPoint.name;
               if (name == appName.toLowerCase()) {
-                app.launch(); 
+                app.launch();
                 return true;
               }
             }
