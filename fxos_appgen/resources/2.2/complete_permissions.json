@@ -1,0 +1,96 @@
+{
+  "permissions": {
+    "alarms": {},
+    "attention": {},
+    "audio-capture": {},
+    "audio-channel-alarm": {},
+    "audio-channel-content": {},
+    "audio-channel-normal": {},
+    "audio-channel-notification": {},
+    "audio-channel-publicnotification": {},
+    "audio-channel-ringer": {},
+    "audio-channel-telephony": {},
+    "background-sensors": {},
+    "backgroundservice": {},
+    "bluetooth": {},
+    "browser": {},
+    "camera": {},
+    "cellbroadcast": {},
+    "contacts": {
+      "access": "readwrite"
+    },
+    "deprecated-hwvideo": {},
+    "desktop-notification": {},
+    "device-storage:apps": {
+      "access": "read"
+    },
+    "device-storage:crashes": {
+      "access": "read"
+    },
+    "device-storage:music": {
+      "access": "readwrite"
+    },
+    "device-storage:pictures": {
+      "access": "readwrite"
+    },
+    "device-storage:sdcard": {
+      "access": "readwrite"
+    },
+    "device-storage:videos": {
+      "access": "readwrite"
+    },
+    "downloads": {},
+    "feature-detection": {},
+    "firefox-accounts": {},
+    "fmradio": {},
+    "geolocation": {},
+    "geolocation-noprompt": {},
+    "idle": {},
+    "input": {},
+    "input-manage": {},
+    "mobileconnection": {},
+    "mobileid": {},
+    "mobilenetwork": {},
+    "moz-attention": {},
+    "moz-audio-channel-ringer": {},
+    "moz-audio-channel-telephony": {},
+    "moz-firefox-accounts": {},
+    "network-events": {},
+    "networkstats-manage": {},
+    "nfc": {
+      "access": "readwrite"
+    },
+    "nfc-hci-events": {},
+    "nfc-manager": {},
+    "open-remote-window": {},
+    "permissions": {},
+    "phonenumberservice": {},
+    "power": {},
+    "push": {},
+    "resourcestats-manage": {},
+    "settings": {
+      "access": "readwrite"
+    },
+    "settings-clear": {},
+    "settings:wallpaper.image": {
+      "access": "readwrite"
+    },
+    "sms": {},
+    "speaker-control": {},
+    "storage": {},
+    "systemXHR": {},
+    "tcp-socket": {},
+    "telephony": {},
+    "test-permission": {
+      "access": "readwrite"
+    },
+    "themeable": {},
+    "time": {},
+    "udp-socket": {},
+    "video-capture": {},
+    "voicemail": {},
+    "wappush": {},
+    "webapps-manage": {},
+    "wifi-manage": {}
+  }
+}

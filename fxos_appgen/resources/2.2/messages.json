@@ -1,0 +1,63 @@
+{
+  "general": [
+    "activity",
+    "connection",
+    "dummy-system-message",
+    "headset-button",
+    "media-button"
+  ],
+  "alarms": [
+    "alarm"
+  ],
+  "bluetooth": [
+    "bluetooth-dialer-command",
+    "bluetooth-cancel",
+    "bluetooth-hid-status-changed",
+    "bluetooth-pairing-request",
+    "bluetooth-opp-transfer-complete",
+    "bluetooth-opp-update-progress",
+    "bluetooth-opp-receiving-file-confirmation",
+    "bluetooth-opp-transfer-start"
+  ],
+  "settings":{
+    "read": [
+              "icc-stkcommand",
+              "nfc-powerlevel-change"
+            ],
+    "write": [
+              "icc-stkcommand",
+              "nfc-powerlevel-change"
+            ]
+  },
+  "networkstats-manage": [
+    "networkstats-alarm"
+  ],
+  "desktop-notification": [
+    "notification"
+  ],
+  "push": [
+    "push",
+    "push-register"
+  ],
+  "sms": [
+    "sms-delivery-success",
+    "sms-read-success",
+    "sms-received",
+    "sms-sent"
+  ],
+  "telephony": [
+    "telephony-new-call",
+    "telephony-call-ended"
+  ],
+  "mobileconnection": [
+    "ussd-received",
+    "cdma-info-rec-received"
+  ],
+  "wappush": [
+    "wappush-received"
+  ],
+  "nfc-manager": [
+    "nfc-manager-tech-discovered",
+    "nfc-manager-tech-lost"
+  ]
+}
