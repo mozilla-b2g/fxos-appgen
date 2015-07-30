@@ -2,9 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from marionette import Marionette, StaleElementException
-from marionette.wait import Wait
-from marionette.expected import element_displayed
+from marionette import Marionette
+from marionette_driver.errors import StaleElementException
+from marionette_driver.wait import Wait
+from marionette_driver.expected import element_displayed
 import mozdevice
 
 import json
