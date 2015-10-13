@@ -1,9 +1,10 @@
 const Cu = Components.utils;
-const {devtools} = Cu.import("resource://gre/modules/devtools/Loader.jsm", {});
+const {devtools} = Cu.import("resource://gre/modules/devtools/shared/Loader.jsm", {});
 const {require} = devtools;
-const {installPackaged} = require("devtools/app-actor-front");
-let { DebuggerServer } = Cu.import("resource://gre/modules/devtools/dbg-server.jsm", {});
-let { DebuggerClient } = Cu.import("resource://gre/modules/devtools/dbg-client.jsm", {});
+const {installPackaged} = require("devtools/shared/apps/app-actor-front");
+
+const { DebuggerServer } = require("devtools/server/main");
+const { DebuggerClient } = require("devtools/shared/client/main");
 
 let gClient, gActor;
 let gAppId = "YOURAPPID";
